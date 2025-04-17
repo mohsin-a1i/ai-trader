@@ -1,0 +1,105 @@
+:root {
+	--switch-height: 30px;
+  --switch-width: 56px;
+  --switch-handle-padding: 4px;
+  --switch-handle-size: calc(var(--switch-height) - var(--switch-handle-padding) * 2);
+  --switch-handle-translation: calc(var(--switch-width) - var(--switch-handle-size) - var(--switch-handle-padding) * 2);
+
+  --background: #000000;
+  --foreground: #ffffff;
+  --foreground-muted: #dfdfdf;
+  --primary: #83bf4f;
+  --primary-muted: #699635;
+  --primary-foreground: #ffffff;
+  --primary-foreground-muted: #cecece;
+}
+
+body {
+  background: var(--background);
+  font-family: 'Roboto';
+  color: var(--foreground);
+}
+
+.button {
+  padding: 8px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--primary-muted);
+  border-color: var(--primary-muted);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: var(--switch-width);
+  height: var(--switch-height);
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--switch-height);
+  background-color: var(--primary-foreground-muted);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch .slider:before {
+  position: absolute;
+  content: "";
+  height: var(--switch-handle-size);
+  width: var(--switch-handle-size);
+  top: var(--switch-handle-padding);
+  left: var(--switch-handle-padding);
+  border-radius: 50%;
+  background-color: var(--primary-foreground);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch input:checked + .slider {
+  background-color: var(--primary);
+}
+
+.switch input:checked + .slider:before {
+  -webkit-transform: translateX(var(--switch-handle-translation));
+  -ms-transform: translateX(var(--switch-handle-translation));
+  transform: translateX(var(--switch-handle-translation));
+}
+
+.description .title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.description .subtitle {
+  margin: 0;
+  color: var(--foreground-muted);
+  font-size: 14px;
+}
+
+.settings {
+	display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 16px;
+}
