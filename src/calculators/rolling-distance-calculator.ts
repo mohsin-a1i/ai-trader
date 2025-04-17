@@ -8,7 +8,7 @@ export default class RollingDistanceCalculator {
     const node = this.list.insertValue(value)
     this.window.push(node)
 
-    if (this.window.length > 10) {
+    if (this.window.length > 50) {
       const removedNode = this.window.shift() as LinkedListNode<number>
       this.list.removeNode(removedNode)
     }

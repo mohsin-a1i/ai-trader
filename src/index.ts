@@ -4,16 +4,20 @@ import fastifyStatic from '@fastify/static'
 import Notifier, { Topic } from './notifier'
 import { PushSubscription } from 'web-push'
 import { AlpacaWebSocket } from './clients/alpaca-web-socket'
-import RollingDistanceCalculator from './calculators/rolling-distance-calculator'
+import MovingAverageCalculator from './calculators/moving-average-calculator'
 
 const notifier = new Notifier()
-const distanceCalculator = new RollingDistanceCalculator()
-let previousDistance = 0
+const longMovingAverage = new MovingAverageCalculator(50)
+const shortMovingAverage = new MovingAverageCalculator(5)
 
 new AlpacaWebSocket(['NVDA'], (trade) => {
-  const distance = distanceCalculator.add(trade.p)
-  if (distance - previousDistance > 0.3) notifier.send('nvidia-price', 'Nvidia Spiked', `Nvidia is trading at ${trade.p}`)
-  previousDistance = distance
+  longMovingAverage.add(trade.p)
+  shortMovingAverage.add(trade.p)
+  const difference = Math.abs(longMovingAverage.average - shortMovingAverage.average)
+  if (difference > 0.15) {
+    const time = new Date().toLocaleTimeString("en-US", { timeZone: "America/New_York" })
+    notifier.send('nvidia-price', 'Nvidia Spiked', `Nvidia is trading at ${trade.p} - ${time}`)
+  }
 })
 
 const fastify = Fastify({ logger: true })

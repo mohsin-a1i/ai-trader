@@ -10,6 +10,8 @@ interface Device {
 export default class Notifier {
     private devices: Record<string, Device> = {}
     private keys: VapidKeys
+    private timeout: number = 5000
+    private lastNotificationTime: number = 0
 
     constructor() {
         this.keys = generateVAPIDKeys()
@@ -46,6 +48,10 @@ export default class Notifier {
     }
 
     async send(topic: Topic, title: string, body: string) {
+        const time = new Date().getTime()
+        if (time - this.lastNotificationTime < this.timeout) return
+        this.lastNotificationTime = time
+
         const devices = Object.values(this.devices)
         for (const { settings, subscription } of devices) {
             if (settings[topic]) await sendNotification(subscription, JSON.stringify({ title, body }))
