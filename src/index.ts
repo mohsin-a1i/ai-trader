@@ -6,7 +6,6 @@ import { PushSubscription } from 'web-push'
 import { AlpacaWebSocket } from './clients/alpaca-web-socket'
 import RollingDistanceCalculator from './calculators/rolling-distance-calculator'
 
-
 const notifier = new Notifier()
 const distanceCalculator = new RollingDistanceCalculator()
 let previousDistance = 0
@@ -17,7 +16,7 @@ new AlpacaWebSocket(['NVDA'], (trade) => {
   previousDistance = distance
 })
 
-const fastify = Fastify()
+const fastify = Fastify({ logger: true })
 fastify.register(fastifyStatic, { 
   root: path.join(__dirname, '../public')
 })
