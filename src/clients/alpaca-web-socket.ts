@@ -18,42 +18,51 @@ export class AlpacaWebSocket {
   private socket: WebSocket
   private authenticated = false
 
-  constructor(symbols: string[], onTrade: (trade: Trade) => void) {
+  constructor(private symbols: string[], onTrade: (trade: Trade) => void) {
     this.socket = new WebSocket(this.url);
-
-    this.socket.on('open', () => {
-      this.socket.send(JSON.stringify({
-        action: 'auth',
-        key: process.env.ALPACA_KEY_ID,
-        secret: process.env.ALPACA_SECRET_KEY
-      }))
-    })
 
     this.socket.on('message', (data) => {
       const messages = JSON.parse(data.toString());
 
       for (const message of messages) {
-        if (!this.authenticated) {
-          if (message.T !== "success") return
-          this.authenticated = true
-
-          return this.socket.send(JSON.stringify({
-            action: 'subscribe',
-            trades: symbols,
-          }))
+        if (message.T === "success") {
+          if (message.msg === "connected") {
+            console.log('Alpaca websocket connected')
+            this.authenticate()
+          } else if (message.msg === "authenticated") {
+            console.log('Alpaca websocket authenticated')
+            this.subscribe()
+          }
+        } else if (message.T === "subscription") {
+          console.log('Alpaca websocket subscribed', message.trades)
+        } else if (message.T === "t") {
+          onTrade(message)
         }
-
-        if (message.T === "t") return onTrade(message)
       }
-    });
+    })
 
     this.socket.on('error', (err) => {
-      console.error('Alpaca webSocket error:', err.message);
+      console.error('Alpaca websocket error:', err.message);
     })
 
     this.socket.on('close', () => {
-      console.log('Alpaca webSocket closed');
+      console.log('Alpaca websocket closed');
     })
+  }
+
+  private authenticate() {
+    this.socket.send(JSON.stringify({
+      action: 'auth',
+      key: process.env.ALPACA_KEY_ID,
+      secret: process.env.ALPACA_SECRET_KEY
+    }))
+  }
+
+  private subscribe() {
+    this.socket.send(JSON.stringify({
+      action: 'subscribe',
+      trades: this.symbols,
+    }))
   }
 
   close() {
